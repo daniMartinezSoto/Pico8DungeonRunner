@@ -1,1 +1,0 @@
-function crear_enemigo(x,y,sprite)
