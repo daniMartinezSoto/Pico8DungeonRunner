@@ -1,0 +1,33 @@
+revisar los movimientos de los enemigos
+revisar los daños de los enemigos
+
+crear sistema de dificultad, la cantidad de enemigos va subiendo con el tiempo por checkpoints.
+
+crear intro rompiendo la puerta
+
+
+HAY QUE CAMBIAR LA FUNCION DE CREAR ENEMIGO... HAY QUE MANDARLE SONIDO Y SHAKE
+
+crear gameover
+
+cuantos puntos da una moneda? una pocion? cuanto te quita el thief?
+
+añadir temblor a todos los ataques?
+
+LISTA enemigos
+
+SISTEMA DE dificultad -->> AUMENTAR EL SPAWN TIME?
+
+
+
+--------------------MONSTRUOS---------------------------
+SLIME OK, daño aleatorio, movimiento mejorable
+
+FIREBALL OK, movimiento rebote
+
+THIEF OK, te roba monedas, te informa de cuantas te ha robado, temblor pantalla
+
+GHOST OK
+
+ORCO, MEJORAR ALARMA, QUE SALGA ANTES DE SALIR
+

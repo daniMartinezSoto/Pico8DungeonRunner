@@ -110,5 +110,34 @@ for mv in all(monedas_voladoras) do
  mv:draw()
 end
 
+
+-- Mostrar advertencia del orco
+if orc_warning_timer > 0 then
+  print(orc_warning_msg, 10, 60, 10) 
+end
+
+-- Mostrar advertencia de ladrón
+if warning_timer > 0 then
+  print(warning_msg, 15, 50, 10)
+end
+
+-- Mostrar monedas perdidas
+if coins_lost_timer > 0 then
+  print(coins_lost_msg, 40, 65, 8)  -- rojo, debajo del otro mensaje
+end
+
+
+
+ -- APLICAR SHAKE
+ local shake_x = 0
+ local shake_y = 0
+ if shake_timer > 0 then
+  shake_x = rnd(shake_amount * 2) - shake_amount
+  shake_y = rnd(shake_amount * 2) - shake_amount
+  camera(shake_x, shake_y)
+ else
+  camera(0, 0)  -- resetear cámara
+ end
+
 end
 

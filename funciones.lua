@@ -1,70 +1,5 @@
 
--- TIPOS DE ENEMIGOS
-enemy_types = {
-  fireball = {
-    sprite = 3,
-    sprite_w = 1,  
-    sprite_h = 1,  
-    damage = 10,
-    speed = 3,
-    movimiento="rebote",
-    width = 8,
-    height = 8
-  },
-  
-  slime = {
-    sprite = 16,
-    sprite_w = 1,  
-    sprite_h = 1,  
-    damage = 5,
-    speed = 2,
-    movimiento="zigzag",
-    width = 8,
-    height = 8
-  },
-  
-  ghost = {
-    sprite = 17,
-    sprite_w = 1,  
-    sprite_h = 1,  
-    damage = 15,
-    speed = 5,
-    movimiento="circular",
-    width = 8,
-    height = 8
-  },
-    orc = {
-    sprite = 20,     
-    sprite_w = 2,    
-    sprite_h = 2,    
-    damage = 50,     --mucho damage
-    speed = 0.8,     -- más lento porque es grande
-    width = 16,      
-    height = 16
-  },
-  
-  eye = {
-    sprite = 09,
-    sprite_w = 1,  
-    sprite_h = 1,  
-    damage = 15,
-    speed = 2,
-    movimiento="perseguidor",
-    width = 8,
-    height = 8
-  },
-  thief = {
-  sprite = 23,       -- sprite izquierdo
-  sprite_w = 2,      -- 2 sprites de ancho (23 y 24)
-  sprite_h = 1,      -- 1 sprite de alto
-  damage = 0,        -- NO quita vida
-  roba_puntos = 1,  -- roba 10 puntos
-  speed = 2,
-  movimiento = "perseguidor",
-  width = 11,        -- hitbox: 8px (sprite 23) + 3px (parte del 24)
-  height = 8
-}
-}
+
 
 function crear_enemigo(tipo, x, y)
  local info = enemy_types[tipo]
@@ -77,7 +12,6 @@ function crear_enemigo(tipo, x, y)
   sprite_w = info.sprite_w,  
   sprite_h = info.sprite_h,  
   damage = info.damage,
-  roba_puntos = info.roba_puntos,
   speed = info.speed,
   direccion_x = info.direccion_x or 1,
   movimiento = info.movimiento or "normal",
@@ -88,17 +22,26 @@ function crear_enemigo(tipo, x, y)
   update = function(self)
   
     -- ALERTA DE LADRÓN (solo cuando entra en pantalla)
-    if self.tipo == "thief" and self.y >= 0 and not self.warning_shown then
+    if self.tipo == "thief" and self.y >=-40 and not self.warning_shown then
       warning_msg = "a thief! watch your coins!"
       warning_timer = 60  -- 3 segundos
       self.warning_shown = true
       sfx(10)  -- sonido de alerta opcional
     end
+
+-- ALERTA DE ORCO (solo la PRIMERA vez que aparece uno)
+if self.tipo == "orc" and self.y >= -30 and not self.warning_shown and not orc_warning_shown_once then
+  orc_warning_msg = "don't get close to the orc!"
+  orc_warning_timer = 90
+  self.warning_shown = true
+  orc_warning_shown_once = true  -- ← marca que ya se mostró
+  sfx(12)
+end
     
       -- MOVIMIENTO SEGÚN TIPO
-    if self.movimiento == "zigzag" then
-      self.y += self.speed
-      self.x += sin(self.y / 10) * 2
+if self.movimiento == "zigzag" then
+  self.y += self.speed
+  self.x += sin(self.y / 40) * 6  -- /40 = MÁS LENTO, *6 = MÁS AMPLIO
       
     elseif self.movimiento == "perseguidor" then
       self.y += self.speed
@@ -107,21 +50,54 @@ function crear_enemigo(tipo, x, y)
       local diff_x = player.x - self.x
       self.x += diff_x * 0.15
       
-    elseif self.movimiento == "diagonal" then
-      self.y += self.speed
-      self.x += self.speed
+elseif self.movimiento == "orco" then
+  -- Inicializar fase
+  self.fase = (self.fase or "lento")
+  
+  if self.fase == "lento" then
+    -- Solo baja lento, SIN perseguir
+    self.y += self.speed * 0.5
+    
+    -- Solo embiste si está dentro de la pantalla y cerca del jugador
+    local distancia_y = player.y - self.y
+    if self.y > 20 and distancia_y > 0 and distancia_y < 100 and abs(self.x - player.x) < 25 then
+      self.fase = "rapido"
+      sfx(13)
+    end
+    
+  else
+    -- fase rápida (embestida) - solo baja rápido, NO persigue
+    self.y += self.speed * 3
+  end
+
       
-    elseif self.movimiento == "rebote" then
-      self.y += self.speed
-      self.x += self.direccion_x * 1.5
-      if self.x < 8 or self.x > 112 then
-        self.direccion_x = -self.direccion_x
-      end
+elseif self.movimiento == "rebote" then
+  self.y += self.speed * 0.6  -- baja MÁS (era 0.3)
+  self.x += self.direccion_x * 2.5  -- menos horizontal (era 3)
+  if self.x < 8 or self.x > 112 then
+    self.direccion_x = -self.direccion_x
+  end
+
       
     elseif self.movimiento == "circular" then
-      self.y += self.speed * 0.5
-      self.angulo = (self.angulo or 0) + 0.05
-      self.x += cos(self.angulo) * 2
+ -- Inicializar variables si no existen
+  self.angulo_percent = (self.angulo_percent or 0)
+  self.centro_x = (self.centro_x or 60)  -- centro horizontal fijo
+  self.centro_y = (self.centro_y or self.y)
+  
+  -- Incrementar ángulo (0 a 1 = círculo completo)
+  self.angulo_percent += 0.02  -- velocidad de rotación
+  if self.angulo_percent > 1 then 
+    self.angulo_percent = 0 
+  end
+  
+  -- El centro baja lentamente
+  self.centro_y += self.speed * 0.2
+  
+  -- Calcular posición en el círculo
+  local radio = 20  -- tamaño del círculo
+  self.x = self.centro_x + radio * cos(self.angulo_percent)
+  self.y = self.centro_y + radio * sin(self.angulo_percent)
       
     else
       self.y += self.speed
@@ -130,23 +106,39 @@ function crear_enemigo(tipo, x, y)
     -- COLISIÓN CON JUGADOR
     if colision(player, self) then
       -- SI ES LADRÓN, roba puntos
-      if self.tipo == "thief" then
-        score -= (self.roba_puntos or 10)
-        if score < 0 then score = 0 end
+if self.tipo == "thief" then
+  local coins_stolen = flr(rnd(10)) + 1
+  score -= coins_stolen
+  if score < 0 then score = 0 end
 
-            -- GENERAR MONEDAS VOLADORAS (efecto visual)
-    for i=1,5 do  -- 5 monedas
-      add(monedas_voladoras, crear_moneda_voladora(player.x, player.y))
-    end
-        sfx(11)
+-- ACTIVAR SHAKE
+shake_timer = 2  -- dura 10 frames
+shake_amount = 0.1  -- intensidad del temblor
 
+  -- MENSAJE de monedas perdidas
+  coins_lost_msg =coins_stolen .. " coins stolen!"
+  coins_lost_timer = 60  -- dura 2 segundos
+
+  -- GENERAR MONEDAS VOLADORAS
+  for i = 1, coins_stolen do
+    add(monedas_voladoras, crear_moneda_voladora(player.x, player.y))
+  end
+  sfx(11)
 
       else
+        
         -- ENEMIGOS NORMALES quitan vida
         life -= self.damage
         sfx(5)
       end
       
+    --screenShake del orco
+    if self.tipo == "orc" then
+      shake_timer = 15
+      shake_amount = 4
+    end
+
+
       del(enemies, self)
     end
   end,

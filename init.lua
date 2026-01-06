@@ -29,6 +29,5 @@ monedas_voladoras = {}
 -- add(potions_mana, crear_pocion_mana(60, -30))
 -- add(potions_mana, crear_pocion_mana(90, -40))
  
- message="mazmorra loca!"
  paso_timer=0
 end
