@@ -31,9 +31,17 @@ spawn_timer += 1
 --  add(enemies, crear_enemigo("fireball", 50, -10))
 -- end
 
--- if spawn_timer == 150 then
---  add(enemies, crear_enemigo("slime", 70, -10))
+-- if spawn_timer == 2 then
+--  add(enemies, crear_enemigo("slime", 10, -10))
 -- end
+
+-- if spawn_timer == 2 then
+--  add(enemies, crear_enemigo("gnomo", 60, -10))
+-- end
+
+if spawn_timer == 2 then
+ add(enemies, crear_enemigo("beholder", 10, -10))
+end
 
 -- if spawn_timer == 180 then
 --  add(potions_mana, crear_pocion_mana(60, -10))
@@ -51,13 +59,13 @@ end
 --  add(potions, crear_pocion(80, -10))
 -- end
 
-if spawn_timer == 10 then
- add(enemies, crear_enemigo("orc", 80, -20))
-end
+-- if spawn_timer == 10 then
+--  add(enemies, crear_enemigo("orc", 80, -20))
+-- end
 
-if spawn_timer == 300 then
- add(enemies, crear_enemigo("orc", 80, -20))
-end
+-- if spawn_timer == 300 then
+--  add(enemies, crear_enemigo("orc", 80, -20))
+-- end
 -- if spawn_timer == 330 then
 --  add(potions_mana, crear_pocion_mana(90, -10))
 -- end
@@ -115,6 +123,11 @@ end
 -- Actualizar todos los enemigos
 for e in all(enemies) do
  e:update()
+end
+
+-- Actualizar balas
+for b in all(balas) do
+ b:update()
 end
 
  -- Sonido de pasos

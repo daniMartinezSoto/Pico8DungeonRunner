@@ -110,6 +110,11 @@ for mv in all(monedas_voladoras) do
  mv:draw()
 end
 
+-- Dibujar balas
+for b in all(balas) do
+ b:draw()
+end
+
 
 -- Mostrar advertencia del orco
 if orc_warning_timer > 0 then

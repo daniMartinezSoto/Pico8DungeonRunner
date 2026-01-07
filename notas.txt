@@ -5,10 +5,16 @@ crear sistema de dificultad, la cantidad de enemigos va subiendo con el tiempo p
 
 crear intro rompiendo la puerta
 
+BORRAR PERSONAJES CUANDO SALGAN DE PLANO
 
-HAY QUE CAMBIAR LA FUNCION DE CREAR ENEMIGO... HAY QUE MANDARLE SONIDO Y SHAKE
+QUE LAS MONEDAS Y POCIONES PUEDAN CAER EN FORMAS DIFERENTES? monedas haciendo un circulo o saliendo
+en linea recta horizontal?
+
+HAY QUE CAMBIAR LA FUNCION DE CREAR ENEMIGO... HAY QUE MANDARLE SONIDO Y CANTIDAD DE SHAKE EN PANTALLA
 
 crear gameover
+
+SPRITES ANIMADOS- ANIMACIONES DE MOVIMIENTO
 
 cuantos puntos da una moneda? una pocion? cuanto te quita el thief?
 
@@ -21,13 +27,33 @@ SISTEMA DE dificultad -->> AUMENTAR EL SPAWN TIME?
 
 
 --------------------MONSTRUOS---------------------------
-SLIME OK, daño aleatorio, movimiento mejorable
+SLIME OK, daño aleatorio, movimiento zigzag (mejorable)
 
-FIREBALL OK, movimiento rebote
+Esqueleto OK, movimiento diagonal, rebota en paredes, hitbox reducida para que sea mas justo
 
 THIEF OK, te roba monedas, te informa de cuantas te ha robado, temblor pantalla
 
-GHOST OK
+GHOST OK, movimiento circular
 
-ORCO, MEJORAR ALARMA, QUE SALGA ANTES DE SALIR
+ORCO, La primera vez te avisa de como funciona, va lento, carga muy rapido en linea recta al verte
 
+Gnomo, va lento y disparando en direccion aleatoria
+
+Beholder, se mueve en escalera disparando en linea recta
+
+
+
+
+Aumentar dificultad: variable global dificultad
+(empieza en 1.0, sube a 1.3, 1.6...) multiplicada por speed al crear enemigo
+
+function crear_enemigo(tipo, x, y)
+ local info = enemy_types[tipo]
+ 
+ return {
+  tipo = tipo,
+  x = x,
+  y = y,
+  sprite = info.sprite,
+  speed = info.speed * dificultad,  -- ← APLICAR AQUÍ
+  -- resto...

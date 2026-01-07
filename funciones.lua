@@ -12,7 +12,7 @@ function crear_enemigo(tipo, x, y)
   sprite_w = info.sprite_w,  
   sprite_h = info.sprite_h,  
   damage = info.damage,
-  speed = info.speed,
+  speed = info.speed * dificultad,
   direccion_x = info.direccion_x or 1,
   movimiento = info.movimiento or "normal",
   width = info.width,
@@ -41,7 +41,7 @@ end
       -- MOVIMIENTO SEGÚN TIPO
 if self.movimiento == "zigzag" then
   self.y += self.speed
-  self.x += sin(self.y / 40) * 6  -- /40 = MÁS LENTO, *6 = MÁS AMPLIO
+  self.x += sin(self.y / 30) * 2 -- /40 = MÁS LENTO, *6 = MÁS AMPLIO
       
     elseif self.movimiento == "perseguidor" then
       self.y += self.speed
@@ -67,7 +67,7 @@ elseif self.movimiento == "orco" then
     
   else
     -- fase rápida (embestida) - solo baja rápido, NO persigue
-    self.y += self.speed * 3
+    self.y += self.speed * 6
   end
 
       
@@ -78,7 +78,56 @@ elseif self.movimiento == "rebote" then
     self.direccion_x = -self.direccion_x
   end
 
-      
+    elseif self.movimiento == "escalera" then
+  self.fase_escalera = (self.fase_escalera or "horizontal")
+  self.timer_escalera = (self.timer_escalera or 0)
+  self.direccion_h = (self.direccion_h or 1)
+  self.disparo_timer = (self.disparo_timer or 0)  -- ← AÑADIR
+  
+  self.timer_escalera += 1
+  self.disparo_timer += 1  -- ← AÑADIR
+  
+  if self.fase_escalera == "horizontal" then
+    -- Mueve horizontalmente
+    self.x += self.direccion_h * 2
+    
+    -- DISPARAR mientras se mueve horizontal
+    if self.disparo_timer > 40 then
+      add(balas, crear_bala(self.x + 4, self.y + 8, 3, "normal"))
+      sfx(14)
+      self.disparo_timer = 0
+    end
+    
+    -- Cambiar a bajar después de X frames o si toca borde
+    if self.timer_escalera > 30 or self.x < 10 or self.x > 110 then
+      self.fase_escalera = "bajar"
+      self.timer_escalera = 0
+      if self.x < 10 then self.direccion_h = 1 end
+      if self.x > 110 then self.direccion_h = -1 end
+    end
+    
+  else  -- fase bajar
+    self.y += self.speed
+    
+    -- Cambiar a horizontal después de bajar un poco
+    if self.timer_escalera > 20 then
+      self.fase_escalera = "horizontal"
+      self.timer_escalera = 0
+    end
+  end
+
+elseif self.movimiento == "tirador_normal" then
+  -- Baja recto
+  self.y += self.speed
+  
+  -- Disparar bala perseguidora cada X frames
+  self.disparo_timer = (self.disparo_timer or 0) + 1
+  if self.disparo_timer > 50 then
+    add(balas, crear_bala(self.x + 4, self.y + 8, 6, "prueba"))
+    sfx(15)
+    self.disparo_timer = 0
+  end
+
     elseif self.movimiento == "circular" then
  -- Inicializar variables si no existen
   self.angulo_percent = (self.angulo_percent or 0)
@@ -292,8 +341,8 @@ function crear_pocion_mana(x, y)
  }
 end
 
--- FUNCIÓN PARA CREAR PERSONAJES (estilo profesora)
-function crear_personaje(character, x, y, sprite, speed)
+-- FUNCIÓN PARA CREAR PERSONAJES (estilo)
+function crear_personaje(character, x, y, sprite, speed, power)
  return {
   character=character,
   x=x,
@@ -302,6 +351,7 @@ function crear_personaje(character, x, y, sprite, speed)
   speed=speed,
   width=8,
   height=8,
+  power=power,
   
   update=function(self)
    if btn(➡️) then self.x+=self.speed end
@@ -322,3 +372,64 @@ function crear_personaje(character, x, y, sprite, speed)
  }
 end
 
+--FUNCION CREAR BALA 
+function crear_bala(x, y, velocidad, tipo)
+ -- Tipos de bala con sus propiedades
+ local bala_tipos = {
+  normal = {sprite = 3, damage = 10, width = 3, height = 4},
+  prueba = {sprite = 26, damage = 20, width = 5, height = 6}
+ }
+ 
+ local info = bala_tipos[tipo] or bala_tipos.normal
+ 
+ return {
+  x = x,
+  y = y,
+  vel_y = velocidad,
+  tipo = tipo,
+  sprite = info.sprite,
+  damage = info.damage,
+  width = info.width,
+  height = info.height,
+  
+  update = function(self)
+
+    --TIPOS DE BALA (DE MOMENTO SOLO USAREMOS NORMAL, PERO AQUI ES ESCALABLE PARA PONER)
+   -- MOVIMIENTO según tipo
+if self.tipo == "prueba" then
+  -- Calcular dirección SOLO la primera vez
+  if not self.direccion_x then
+    self.direccion_x = rnd(2) - 1  -- rango de -1 a +1 (SW a SE)
+  end
+  
+  self.y += self.vel_y           -- baja
+  self.x += self.direccion_x * 2  -- se mueve en diagonal
+
+    
+   else
+    -- Normal: solo baja recto
+    self.y += self.vel_y
+   end
+   
+   -- Colisión con jugador
+   if colision(player, self) then
+    life -= self.damage
+    sfx(5)
+    del(balas, self)
+   end
+   
+   -- Eliminar si sale de pantalla
+   if self.y > 128 then
+    del(balas, self)
+   end
+  end,
+  
+  draw = function(self)
+   if self.sprite then
+    spr(self.sprite, self.x, self.y)
+   else
+    rectfill(self.x, self.y, self.x+self.width, self.y+self.height, 8)
+   end
+  end
+ }
+end

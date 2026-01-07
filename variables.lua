@@ -1,6 +1,7 @@
 -- VARIABLES
-local coins, player, score, potions, enemies, potions_mana, monedas_voladoras
+local coins, player, score, potions, enemies, potions_mana, monedas_voladoras, dificultad, balas
 score=0
+dificultad=1.2;
 
 warning_msg = "a thief! watch your coins!"
 warning_timer = 0
@@ -20,14 +21,14 @@ local shake_amount = 0
 -- TIPOS DE ENEMIGOS
 enemy_types = {
   fireball = {
-    sprite = 3,
+    sprite = 32,
     sprite_w = 1,  
     sprite_h = 1,  
     damage = 10,
-    speed = 3,
+    speed = 1.2,
     movimiento="rebote",
-    width = 8,
-    height = 8
+    width = 5,
+    height = 5
   },
   
   slime = {
@@ -35,7 +36,7 @@ enemy_types = {
     sprite_w = 1,  
     sprite_h = 1,  
     damage = flr(rnd(11)) + 15, --daño entre 15 y 25
-    speed = 2,
+    speed = 1,
     movimiento="zigzag",
     width = 8,
     height = 8
@@ -80,6 +81,27 @@ enemy_types = {
   speed = 1.4,
   movimiento = "perseguidor",
   width = 11,        -- hitbox: 8px (sprite 23) + 3px (parte del 24)
+  height = 8
+}, 
+  beholder = {
+    sprite = 11,     
+    sprite_w = 2,    
+    sprite_h = 2,    
+    damage = 50,     
+    speed = 1,
+    movimiento="escalera",
+    width = 16,      
+    height = 16
+  },
+  
+  gnomo = {
+  sprite = 25,
+  sprite_w = 1,
+  sprite_h = 1,
+  damage = 8,
+  speed = 0.3,
+  movimiento = "tirador_normal",
+  width = 8,
   height = 8
 }
 }

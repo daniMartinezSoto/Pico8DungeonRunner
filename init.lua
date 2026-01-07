@@ -11,6 +11,7 @@ potions = {}
 enemies = {}
 potions_mana = {}
 monedas_voladoras = {} 
+balas = {}
  
 -- Añadir objetos que empiezan arriba (fuera de pantalla o en el borde)
 -- add(coins, crear_moneda(20, -10))
