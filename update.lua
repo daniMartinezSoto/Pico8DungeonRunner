@@ -5,7 +5,7 @@ function _update()
 -- MUERTE DEL JUGADOR
 if life <= 0 and not player_muerto then
   player_muerto = true
-  muerte_timer = 120
+  muerte_timer = 80
 
   
   -- Efecto de jugador volando
@@ -114,7 +114,7 @@ end
 
 --Utilidades varias:
 
---Que la vida no suba de 100
+--Que la vida no suba de 100 y no baje de 0
 if life > 100 then life = 100 end
 if life < 0 then life = 0 end
 

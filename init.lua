@@ -25,22 +25,5 @@ life = 100
 
 
  
--- Añadir objetos que empiezan arriba (fuera de pantalla o en el borde)
--- add(coins, crear_moneda(20, -10))
--- add(coins, crear_moneda(25, -20))
-
--- add(potions, crear_pocion(40, -15))
--- add(potions, crear_pocion(80, -25))
-
--- add(enemies, crear_enemigo("fireball", 30, -5))
--- add(enemies, crear_enemigo("slime", 70, -15))
--- add(enemies, crear_enemigo("ghost", 100, -25))
--- add(enemies, crear_enemigo("orc", 80, -45))
-
--- add(enemies, crear_enemigo("thief", 40, -20))
-
--- add(potions_mana, crear_pocion_mana(60, -30))
--- add(potions_mana, crear_pocion_mana(90, -40))
- 
 
 end

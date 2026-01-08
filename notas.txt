@@ -6,22 +6,15 @@ crear sistema de dificultad, la cantidad de enemigos va subiendo con el tiempo p
 
 crear intro rompiendo la puerta
 
-BORRAR PERSONAJES CUANDO SALGAN DE PLANO
-
-
 
 QUE LAS MONEDAS Y POCIONES PUEDAN CAER EN FORMAS DIFERENTES? monedas haciendo un circulo o saliendo
 en linea recta horizontal?
 
-HAY QUE CAMBIAR LA FUNCION DE CREAR ENEMIGO... HAY QUE MANDARLE SONIDO Y CANTIDAD DE SHAKE EN PANTALLA
-
-crear gameover
 
 SPRITES ANIMADOS- ANIMACIONES DE MOVIMIENTO
 
 cuantos puntos da una moneda? una pocion? cuanto te quita el thief?
 
-añadir temblor a todos los ataques?
 
 LISTA enemigos
 

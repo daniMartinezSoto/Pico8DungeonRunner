@@ -68,12 +68,6 @@ rectfill(bar_power_x, bar_power_y, bar_power_x+bar_power_w, bar_power_y+bar_powe
 rectfill(bar_power_x, bar_power_y, bar_power_x + (bar_power_w * power / 100), bar_power_y + bar_power_h, 12)
 -----------------------------------------------------
 
-
- -- Dibujar todo
- player:draw()
-
-
-
 -- OPCIÓN 4: Con emoji/símbolo
 print("★ "..score, 20, 21, 10)
 -- Muestra: "★45"
@@ -100,7 +94,7 @@ for x=8,112,8 do
 end
 
 -- DESPUÉS pintar el sprite 10 en ese hueco
-spr(10, 56, 120)
+spr(16, 56, 120)
 
 
 -- Mostrar advertencia de ladrón
@@ -135,7 +129,7 @@ if coins_lost_timer > 0 then
   print(coins_lost_msg, 40, 65, 8)  -- rojo, debajo del otro mensaje
 end
 
-
+ player:draw()
 
  -- APLICAR SHAKE
  local shake_x = 0
