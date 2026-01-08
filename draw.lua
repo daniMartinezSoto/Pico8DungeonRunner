@@ -1,6 +1,21 @@
 function _draw()
  cls()
 
+
+ -- PANTALLA DE GAME OVER
+ if game_over then
+  -- Fondo oscuro
+  rectfill(0, 0, 128, 128, 0)
+  
+  -- Texto
+  print("game over", 40, 50, 8)
+  print("score: "..score, 42, 60, 7)
+  print("press ❎ to restart", 20, 75, 6)
+  return  -- no dibuja nada más
+ end
+
+
+
  -- RELLENAR SUELO DE LA MAZMORRA (todo el fondo)
  for y=0,120,8 do
   for x=8,112,8 do
@@ -29,18 +44,6 @@ for pm in all(potions_mana) do
  pm:draw()
 end
 
-
- 
- --PINTADO DE LA BARRA DE VIDA-------------------------
- -- 1️⃣ borde gris
- rect(bar_x-1, bar_y-1, bar_x+bar_w+1, bar_y+bar_h+1, 6)
-
- -- 2️⃣ fondo azul oscuro
- rectfill(bar_x, bar_y, bar_x+bar_w, bar_y+bar_h, 1)
-
- -- 3️⃣ barra roja de vida
- -- el ancho depende de life
- rectfill(bar_x, bar_y, bar_x + (bar_w * life / 100), bar_y + bar_h, 8)
 -----------------------------------------------------
 --PINTADO DE LA BARRA DE VIDA-------------------------
 -- 1️⃣ borde gris
@@ -50,7 +53,8 @@ rect(bar_x-1, bar_y-1, bar_x+bar_w+1, bar_y+bar_h+1, 6)
 rectfill(bar_x, bar_y, bar_x+bar_w, bar_y+bar_h, 1)
 
 -- 3️⃣ barra roja de vida
-rectfill(bar_x, bar_y, bar_x + (bar_w * life / 100), bar_y + bar_h, 8)
+local life_width = max(0, bar_w * life / 100)  -- nunca negativo
+rectfill(bar_x, bar_y, bar_x + life_width, bar_y + bar_h, 8)
 -----------------------------------------------------
 
 --PINTADO DE LA BARRA DE POWER------------------------

@@ -1,10 +1,13 @@
 -- VARIABLES
 local coins, player, score, potions, enemies, potions_mana, monedas_voladoras, dificultad, balas
 score=0
-dificultad=1.2;
+dificultad=1;
 
 warning_msg = "a thief! watch your coins!"
 warning_timer = 0
+
+local game_over = false
+
 
 local orc_warning_msg = ""
 local orc_warning_timer = 0
@@ -18,9 +21,12 @@ local coins_lost_timer = 0
 local shake_timer = 0
 local shake_amount = 0
 
+local muerte_timer = 0
+local player_muerto = false
+
 -- TIPOS DE ENEMIGOS
 enemy_types = {
-  fireball = {
+  skeleton = {
     sprite = 32,
     sprite_w = 1,  
     sprite_h = 1,  

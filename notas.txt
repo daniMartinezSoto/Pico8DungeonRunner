@@ -1,11 +1,14 @@
 revisar los movimientos de los enemigos
 revisar los daños de los enemigos
+Revisar los enemigos POR DIFICULTAD
 
 crear sistema de dificultad, la cantidad de enemigos va subiendo con el tiempo por checkpoints.
 
 crear intro rompiendo la puerta
 
 BORRAR PERSONAJES CUANDO SALGAN DE PLANO
+
+
 
 QUE LAS MONEDAS Y POCIONES PUEDAN CAER EN FORMAS DIFERENTES? monedas haciendo un circulo o saliendo
 en linea recta horizontal?
@@ -24,12 +27,14 @@ LISTA enemigos
 
 SISTEMA DE dificultad -->> AUMENTAR EL SPAWN TIME?
 
-
-
 --------------------MONSTRUOS---------------------------
+
+AÑADIR SONIDO A CADA MONSTRUO??? -REVISAR EL SONIDO AL FINAL.
+
 SLIME OK, daño aleatorio, movimiento zigzag (mejorable)
 
 Esqueleto OK, movimiento diagonal, rebota en paredes, hitbox reducida para que sea mas justo
+hace sonidito al rebotar
 
 THIEF OK, te roba monedas, te informa de cuantas te ha robado, temblor pantalla
 
@@ -37,10 +42,9 @@ GHOST OK, movimiento circular
 
 ORCO, La primera vez te avisa de como funciona, va lento, carga muy rapido en linea recta al verte
 
-Gnomo, va lento y disparando en direccion aleatoria
+Gnomo, va lento y disparando en abanico
 
 Beholder, se mueve en escalera disparando en linea recta
-
 
 
 

@@ -11,7 +11,7 @@ function crear_enemigo(tipo, x, y)
   sprite = info.sprite,
   sprite_w = info.sprite_w,  
   sprite_h = info.sprite_h,  
-  damage = info.damage,
+  damage = info.damage*dificultad,
   speed = info.speed * dificultad,
   direccion_x = info.direccion_x or 1,
   movimiento = info.movimiento or "normal",
@@ -20,6 +20,11 @@ function crear_enemigo(tipo, x, y)
   warning_shown = false,
   
   update = function(self)
+
+    --SISTEMA DE BORRADO DE PERSONAJES SI SALEN POR ABAJO
+     if self.y > 135 then
+    del(enemies, self)
+  end
   
     -- ALERTA DE LADRÓN (solo cuando entra en pantalla)
     if self.tipo == "thief" and self.y >=-40 and not self.warning_shown then
@@ -60,7 +65,7 @@ elseif self.movimiento == "orco" then
     
     -- Solo embiste si está dentro de la pantalla y cerca del jugador
     local distancia_y = player.y - self.y
-    if self.y > 20 and distancia_y > 0 and distancia_y < 100 and abs(self.x - player.x) < 25 then
+if self.y > 20 and distancia_y > 0 and distancia_y < 100 and abs(self.x - player.x) < 8 then  -- <-- 8 píxeles
       self.fase = "rapido"
       sfx(13)
     end
@@ -75,6 +80,7 @@ elseif self.movimiento == "rebote" then
   self.y += self.speed * 0.6  -- baja MÁS (era 0.3)
   self.x += self.direccion_x * 2.5  -- menos horizontal (era 3)
   if self.x < 8 or self.x > 112 then
+    sfx(16)
     self.direccion_x = -self.direccion_x
   end
 
@@ -120,10 +126,37 @@ elseif self.movimiento == "tirador_normal" then
   -- Baja recto
   self.y += self.speed
   
+  -- Movimiento lateral aleatorio una sola vez a los 3 segundos
+  self.lateral_timer = (self.lateral_timer or 0) + 1
+  if self.lateral_timer > 90 and not self.se_movio then  -- 90 frames ≈ 3 segundos
+    self.direccion_lateral = (rnd(1) < 0.5) and -1 or 1  -- -1 izq, 1 der
+    self.se_movio = true
+  end
+  
+  -- Aplicar movimiento lateral si ya se activó
+if self.se_movio then
+  self.x += self.direccion_lateral * 1.5
+  
+  -- Rebotar en las murallas (asumiendo muralla en x=8 y x=120)
+  if self.x < 8 then
+    self.x = 8
+    self.direccion_lateral = 1  -- cambia a derecha
+  elseif self.x > 112 then  -- 120-8 (ancho del sprite)
+    self.x = 112
+    self.direccion_lateral = -1  -- cambia a izquierda
+  end
+end
+  
   -- Disparar bala perseguidora cada X frames
   self.disparo_timer = (self.disparo_timer or 0) + 1
   if self.disparo_timer > 50 then
-    add(balas, crear_bala(self.x + 4, self.y + 8, 6, "prueba"))
+    -- Disparar 5 balas en abanico fijo
+    add(balas, crear_bala(self.x + 4, self.y + 8, 6, "prueba", -1))
+    add(balas, crear_bala(self.x + 4, self.y + 8, 6, "prueba", -0.5))
+    add(balas, crear_bala(self.x + 4, self.y + 8, 6, "prueba", 0))
+    add(balas, crear_bala(self.x + 4, self.y + 8, 6, "prueba", 0.5))
+    add(balas, crear_bala(self.x + 4, self.y + 8, 6, "prueba", 1))
+    
     sfx(15)
     self.disparo_timer = 0
   end
@@ -176,8 +209,10 @@ shake_amount = 0.1  -- intensidad del temblor
 
       else
         
-        -- ENEMIGOS NORMALES quitan vida
+        -- ENEMIGOS NORMALES quitan vida y shake
         life -= self.damage
+        shake_timer = 1  -- dura 10 frames
+        shake_amount = 0.1  -- intensidad del temblor
         sfx(5)
       end
       
@@ -196,7 +231,11 @@ shake_amount = 0.1  -- intensidad del temblor
     spr(self.sprite, self.x, self.y, self.sprite_w, self.sprite_h)
   end
  }
+
+
+ 
 end
+
 
 --BARRA DE VIDA
 -- tamaño de la barra
@@ -204,7 +243,6 @@ bar_x = 20
 bar_y = 10
 bar_w = 88
 bar_h = 5
-life = 100
 
 -- BARRA DE POWER (más pequeña y debajo)
 bar_power_x = 48
@@ -373,11 +411,11 @@ function crear_personaje(character, x, y, sprite, speed, power)
 end
 
 --FUNCION CREAR BALA 
-function crear_bala(x, y, velocidad, tipo)
+function crear_bala(x, y, velocidad, tipo, direccion)  -- <-- añadir direccion aquí
  -- Tipos de bala con sus propiedades
  local bala_tipos = {
-  normal = {sprite = 3, damage = 10, width = 3, height = 4},
-  prueba = {sprite = 26, damage = 20, width = 5, height = 6}
+  normal = {sprite = 3, damage = 30*dificultad, width = 3, height = 4},
+  prueba = {sprite = 26, damage = 10*dificultad, width = 5, height = 6}
  }
  
  local info = bala_tipos[tipo] or bala_tipos.normal
@@ -391,24 +429,17 @@ function crear_bala(x, y, velocidad, tipo)
   damage = info.damage,
   width = info.width,
   height = info.height,
+  direccion_x = direccion,  -- <-- guardar la dirección recibida
   
   update = function(self)
-
-    --TIPOS DE BALA (DE MOMENTO SOLO USAREMOS NORMAL, PERO AQUI ES ESCALABLE PARA PONER)
    -- MOVIMIENTO según tipo
-if self.tipo == "prueba" then
-  -- Calcular dirección SOLO la primera vez
-  if not self.direccion_x then
-    self.direccion_x = rnd(2) - 1  -- rango de -1 a +1 (SW a SE)
-  end
-  
-  self.y += self.vel_y           -- baja
-  self.x += self.direccion_x * 2  -- se mueve en diagonal
-
-    
+   if self.tipo == "prueba" then
+     -- Usar la dirección que ya tenemos guardada
+     self.y += self.vel_y           -- baja
+     self.x += self.direccion_x * 2  -- se mueve en diagonal
    else
-    -- Normal: solo baja recto
-    self.y += self.vel_y
+     -- Normal: solo baja recto
+     self.y += self.vel_y
    end
    
    -- Colisión con jugador
