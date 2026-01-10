@@ -4,13 +4,16 @@ Revisar los enemigos POR DIFICULTAD
 
 crear sistema de dificultad, la cantidad de enemigos va subiendo con el tiempo por checkpoints.
 
-crear intro rompiendo la puerta
 
+Eleccion de personajes?
+
+DISEÑAR LOS PODERES CON LA Z (O)
 
 QUE LAS MONEDAS Y POCIONES PUEDAN CAER EN FORMAS DIFERENTES? monedas haciendo un circulo o saliendo
 en linea recta horizontal?
 
 
+ARREGLAR LADRON? TE ROBA SIN MONEDAS. aunque no roba realemten ni deja en negativo salta la animación
 SPRITES ANIMADOS- ANIMACIONES DE MOVIMIENTO
 
 cuantos puntos da una moneda? una pocion? cuanto te quita el thief?
@@ -20,7 +23,7 @@ LISTA enemigos
 
 SISTEMA DE dificultad -->> AUMENTAR EL SPAWN TIME?
 
---------------------MONSTRUOS---------------------------
+--------------------MONSTRUOS--------------------------- 
 
 AÑADIR SONIDO A CADA MONSTRUO??? -REVISAR EL SONIDO AL FINAL.
 
@@ -37,7 +40,7 @@ ORCO, La primera vez te avisa de como funciona, va lento, carga muy rapido en li
 
 Gnomo, va lento y disparando en abanico
 
-Beholder, se mueve en escalera disparando en linea recta
+Beholder, se mueve en escalera disparando en linea recta, OJJOOOO ALINEAR MEJOR. ES MUY DIFICIL EVITARLO
 
 
 

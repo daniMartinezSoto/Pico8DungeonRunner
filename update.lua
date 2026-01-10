@@ -1,132 +1,179 @@
-
-
 function _update()
 
 -- MUERTE DEL JUGADOR
 if life <= 0 and not player_muerto then
+  shake_timer = 2
+  shake_amount = 1
   player_muerto = true
   muerte_timer = 80
-
   
   -- Efecto de jugador volando
   player.vx = rnd(4) - 2
   player.vy = -4
   sfx(1,0)
   sfx(9,1)
+  music(-1)
 end
 
 -- GAME OVER (pantalla final)
 if game_over then
   if btnp(❎) then
+    sfx(22)
     _init()
-    game_over = false  -- ← IMPORTANTE: resetear aquí también
+    game_over = false
   end
-  return  -- NO ejecutar nada más
+  return
 end
 
 -- Animación de muerte
 if player_muerto then
-  -- El jugador "vuela"
-
   player.x += player.vx
   player.y += player.vy
   player.vy += 0.2
   
-  -- Countdown
   muerte_timer -= 1
   
-  -- Después de la animación → Game Over
   if muerte_timer <= 0 then
     game_over = true
   end
   
-  return  -- NO actualizar enemigos/balas durante muerte
+  return
 end
--- resto del código normal...
+
+-- ========== INTRO ==========
+if game_state == "intro" then
+  -- Reducir shake en intro
+  if shake_timer > 0 then
+    shake_timer -= 1
+  end
+  
+  if btnp(❎) then
+    golpes_puerta += 1
+    sfx(8)
+    shake_timer = 2
+    shake_amount = 1
+    
+    -- Al 4to golpe, rompe la puerta
+    if golpes_puerta >= 4 then
+      game_state = "entrando"
+      sfx(17)
+      shake_timer = 15
+      shake_amount = 3
+      
+      -- CREAR PUERTA VOLANDO
+      puerta_rota = {
+        x = 56,
+        y = 120,
+        vx = rnd(4) - 2,
+        vy = -4,
+        vida = 60
+      }
+    end
+  end
+  return
+end
+
+-- ========== ENTRANDO (animación) ==========
+if game_state == "entrando" then
+  -- Reducir shake en entrando
+  if shake_timer > 0 then
+    shake_timer -= 1
+  end
+  
+  -- Animar puerta rota
+  if puerta_rota then
+    puerta_rota.x += puerta_rota.vx
+    puerta_rota.y += puerta_rota.vy
+    puerta_rota.vy += 0.2
+    puerta_rota.vida -= 1
+    
+    if puerta_rota.vida <= 0 then
+      puerta_rota = nil
+    end
+  end
+  
+  -- Mover jugador hacia arriba
+  if player.y > 110 then
+    player.y -= 1
+    camera_y -= 1
+  else
+    game_state = "playing"
+    music(0)
+    poke(0x3144, 3)  -- bajar volumen global de música (0-7)
+
+    camera_y = 0
+    puerta_rota = nil
+    
+    -- CREAR ENEMIGOS INICIALES
+    add(enemies, crear_enemigo("beholder", 50, -10))
+
+    -- CREAR POCIONES INICIALES
+    add(potions_mana, crear_pocion_mana(70, -25))
+    add(potions_mana, crear_pocion_mana(70, -25))
+    add(potions_mana, crear_pocion_mana(70, -25))
+    add(potions_mana, crear_pocion_mana(70, -25))
+  end
+  return
+end
+
+-- ========== JUEGO NORMAL ==========
 
 -- Reducir shake
 if shake_timer > 0 then
   shake_timer -= 1
 end
 
-
---PRUEBA DE MOBS -------------------------------------------------------- 
---QUITAR MAS TARDE CUANDO SE CREE EL SISTEMA DE APARICION DE ENEMIGOS
--- Sistema de spawn escalonado
-spawn_timer += 1
-
--- if spawn_timer == 30 then
---  add(coins, crear_moneda(20, -10))
--- end
-
--- if spawn_timer == 60 then
---  add(coins, crear_moneda(70, -10))
--- end
-
--- if spawn_timer == 90 then
---  add(potions, crear_pocion(40, -10))
--- end
-
-if spawn_timer == 2 then
- add(enemies, crear_enemigo("skeleton", 50, -10))
-end
-
-if spawn_timer == 2 then
- add(enemies, crear_enemigo("slime", 10, -10))
-end
-
-if spawn_timer == 2 then
- add(enemies, crear_enemigo("gnomo", 60, -10))
-end
-
-if spawn_timer == 2 then
- add(enemies, crear_enemigo("beholder", 10, -10))
-end
-
--- if spawn_timer == 180 then
---  add(potions_mana, crear_pocion_mana(60, -10))
--- end
-
--- if spawn_timer == 2 then
---  add(enemies, crear_enemigo("ghost", 50, -10))
--- end
-
--- if spawn_timer == 100 then
---  add(enemies, crear_enemigo("thief", 40, -10))
--- end
-
--- if spawn_timer == 270 then
---  add(potions, crear_pocion(80, -10))
--- end
-
--- if spawn_timer == 10 then
---  add(enemies, crear_enemigo("orc", 80, -20))
--- end
-
--- if spawn_timer == 300 then
---  add(enemies, crear_enemigo("orc", 80, -20))
--- end
--- if spawn_timer == 330 then
---  add(potions_mana, crear_pocion_mana(90, -10))
--- end
-
----------------------------------------------------------------------------
-
---Utilidades varias:
-
---Que la vida no suba de 100 y no baje de 0
+-- Utilidades varias
 if life > 100 then life = 100 end
 if life < 0 then life = 0 end
 
-
--- Countdown del mensaje de advertencia del ladron
+-- Countdowns de mensajes
 if warning_timer > 0 then
   warning_timer -= 1
 end
 
--- Countdown del mensaje del orco
 if orc_warning_timer > 0 then
   orc_warning_timer -= 1
+end
+
+if coins_lost_timer > 0 then
+  coins_lost_timer -= 1
+end
+
+if power_msg_timer > 0 then
+  power_msg_timer -= 1
+end
+
+-- Detectar cuando power llega a 100
+if power >= 100 and not power_ready_shown then
+  power_msg = "your power is ready!"
+  power_msg_timer = 90
+  power_ready_shown = true
+  sfx(24)
+end
+
+-- Resetear flag si baja de 100
+if power < 100 then
+  power_ready_shown = false
+end
+
+-- Activar habilidad con X
+if btnp(❎) then
+  if power < 100 then
+    power_msg = "not enough power!"
+    power_msg_timer = 60
+    sfx(6)
+  else
+    power_msg = "power activated!"
+    power_msg_timer = 60
+    power = 0
+    power_ready_shown = false
+    sfx(23)
+    
+    -- PODER DE PRUEBA: hacer shake
+    shake_timer = 30
+    shake_amount = 2
+  end
 end
 
 -- Actualizar monedas voladoras
@@ -134,12 +181,10 @@ for mv in all(monedas_voladoras) do
  mv:update()
 end
 
---------------------------------------------------------
+-- Actualizar jugador
+player:update()
 
- -- Actualizar jugador, objetos y monstruos etc..
- player:update()
-
--- Actualizar todas las pociones
+-- Actualizar pociones
 for p in all(potions) do
  p:update()
 end
@@ -149,19 +194,12 @@ for pm in all(potions_mana) do
  pm:update()
 end
 
-
- -- Actualizar todas las monedas
+-- Actualizar monedas
 for c in all(coins) do
  c:update()
 end
 
--- Countdown del mensaje de monedas perdidas por ladron
-if coins_lost_timer > 0 then
-  coins_lost_timer -= 1
-end
- 
-
--- Actualizar todos los enemigos
+-- Actualizar enemigos
 for e in all(enemies) do
  e:update()
 end
@@ -171,14 +209,15 @@ for b in all(balas) do
  b:update()
 end
 
- -- Sonido de pasos
- if btn(➡️) or btn(⬅️) then
-  paso_timer+=1
-  if paso_timer>10 then
+-- Sonido de pasos
+if btn(➡️) or btn(⬅️) then
+  paso_timer += 1
+  if paso_timer > 10 then
    sfx(2)
-   paso_timer=0
+   paso_timer = 0
   end
- else
-  paso_timer=0
- end
+else
+  paso_timer = 0
+end
+
 end

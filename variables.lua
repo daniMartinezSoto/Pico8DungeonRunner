@@ -24,6 +24,22 @@ local shake_amount = 0
 local muerte_timer = 0
 local player_muerto = false
 
+
+--VARIABLES INTRO
+
+local game_state = "intro"
+local golpes_puerta = 0
+local camera_y = 0
+
+local puerta_rota = nil  -- para la animación de la puerta volando
+
+
+-- Sistema de habilidades
+local power_msg = ""
+local power_msg_timer = 0
+local power_ready_shown = false  -- para mostrar "ready" solo una vez
+
+
 -- TIPOS DE ENEMIGOS
 enemy_types = {
   skeleton = {
@@ -84,17 +100,17 @@ enemy_types = {
   sprite_w = 2,      -- 2 sprites de ancho (23 y 24)
   sprite_h = 1,      -- 1 sprite de alto
   damage = 0,        -- NO quita vida
-  speed = 1.4,
+  speed = 1.3,
   movimiento = "perseguidor",
-  width = 11,        -- hitbox: 8px (sprite 23) + 3px (parte del 24)
-  height = 8
+  width = 6,        --11 hitbox: 8px (sprite 23) + 3px (parte del 24)
+  height = 6
 }, 
   beholder = {
     sprite = 11,     
     sprite_w = 2,    
     sprite_h = 2,    
-    damage = 50,     
-    speed = 1,
+    damage = 40,     
+    speed = 0.8,
     movimiento="escalera",
     width = 16,      
     height = 16
