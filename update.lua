@@ -104,9 +104,19 @@ if game_state == "entrando" then
     camera_y = 0
     puerta_rota = nil
     
-    -- CREAR ENEMIGOS INICIALES
-    add(enemies, crear_enemigo("beholder", 50, -10))
+ -- Tipos básicos
+-- add(enemies, crear_enemigo("skeleton", 50, -10))
+-- add(enemies, crear_enemigo("slime", 30, -15))
+-- add(enemies, crear_enemigo("ghost", 70, -20))
+-- add(enemies, crear_enemigo("eye", 40, -10))
 
+-- Tipos especiales (2x2 sprites)
+add(enemies, crear_enemigo("orc", 60, -20))
+-- add(enemies, crear_enemigo("beholder", 80, -20))
+
+-- Tipos con habilidades
+-- add(enemies, crear_enemigo("thief", 45, -10))
+-- add(enemies, crear_enemigo("gnomo", 55, -10))
     -- CREAR POCIONES INICIALES
     add(potions_mana, crear_pocion_mana(70, -25))
     add(potions_mana, crear_pocion_mana(70, -25))
@@ -164,15 +174,36 @@ if btnp(❎) then
     power_msg_timer = 60
     sfx(6)
   else
-    power_msg = "power activated!"
+
+if player.power == "coinPower" then
+
+    power_msg = "COINPOWER!"
     power_msg_timer = 60
     power = 0
     power_ready_shown = false
     sfx(23)
-    
-    -- PODER DE PRUEBA: hacer shake
     shake_timer = 30
     shake_amount = 2
+
+elseif player.power == "clearScreen" then
+    power_msg = "CLEARSCREEN!"
+    power_msg_timer = 60
+    power = 0
+    power_ready_shown = false
+    sfx(23)
+    shake_timer = 30
+    shake_amount = 2
+elseif player.power == "shield" then
+    power_msg = "SHIELD!"
+    power_msg_timer = 60
+    power = 0
+    power_ready_shown = false
+    sfx(23)
+    shake_timer = 30
+    shake_amount = 2
+end
+
+
   end
 end
 

@@ -31,12 +31,11 @@ function crear_enemigo(tipo, x, y)
       warning_msg = "a thief! watch your coins!"
       warning_timer = 60  -- 3 segundos
       self.warning_shown = true
-      sfx(10)  -- sonido de alerta opcional
+      sfx(6)  -- sonido de alerta opcional
     end
 
 -- ALERTA DE ORCO (solo la PRIMERA vez que aparece uno)
 if self.tipo == "orc" and self.y >= -30 and not self.warning_shown and not orc_warning_shown_once then
-  orc_warning_msg = "don't get close to the orc!"
   orc_warning_timer = 90
   self.warning_shown = true
   orc_warning_shown_once = true  -- ← marca que ya se mostró

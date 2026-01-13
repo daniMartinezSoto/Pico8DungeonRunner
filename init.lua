@@ -4,7 +4,7 @@ function _init()
  -- Y SE CREA EL PERSONAJE ELEGIDO DANDOLE NOMBRE PLAYER
  -- player = crear_personaje("mage", 63, 100, 2, 3)
  -- player = crear_personaje("warrior", 63, 100, 4, 2)
- player = crear_personaje("elf", 56, 128, 5, 4, "coinPower")
+ player = crear_personaje("elf", 56, 128, 5, 4, "clearScreen")
 
 coins = {}
 potions = {}

@@ -9,7 +9,7 @@ warning_timer = 0
 local game_over = false
 
 
-local orc_warning_msg = ""
+local orc_warning_msg = "don't get close to the orc!"
 local orc_warning_timer = 0
 local orc_warning_shown_once = false
 
