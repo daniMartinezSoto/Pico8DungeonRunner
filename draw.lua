@@ -11,17 +11,38 @@ function _draw()
  
  camera(shake_x, camera_y + shake_y)  -- ← COMBINAR AMBOS
 
+-- ========== MENÚ ==========
+if game_state == "menu" then
+   music(10)
+  camera(0, 0)
+  cls(0)
+    -- RELLENAR FONDO con sprite 22
+  for y=0,120,8 do
+    for x=0,120,8 do
+      spr(22, x, y)
+    end
+  end
+  -- Dibujar rótulo
+  
+  spr(64, 36, 20, 8, 7)
+  
+  -- Textos
+  print("press ❎ or 🅾️ to start", 18, 105, 9)
+  print("a game by picodani", 27, 50, 6)
+  print("music by snabisch", 28, 60, 6)
+  
+  return
+end
 
-
- -- ========== GAME OVER ==========
- if game_over then
-  camera(0, 0)  -- resetear cámara para game over
+if game_over then
+  camera(0, 0)
   rectfill(0, 0, 128, 128, 0)
   print("game over", 40, 50, 8)
   print("score: "..score, 42, 60, 7)
-  print("press ❎ to restart", 20, 75, 6)
+  print("press ❎ to retry", 25, 75, 7)      -- reiniciar
+  print("press 🅾️ for menu", 25, 85, 6)     -- menú
   return
- end
+end
 
 -- ========== INTRO / ENTRANDO ==========
 if game_state == "intro" or game_state == "entrando" then
@@ -70,9 +91,9 @@ end
   -- Texto
   if game_state == "intro" then
     camera(0, 0)
-    print("break the door", 30, 30, 7)
+    print("break the door", 30, 30, 6)
     print("to enter the dungeon", 18, 40, 6)
-    print("press ❎", 45, 60, 10)
+    print("press ❎", 45, 60, 9)
   end
   
   camera(0, 0)
@@ -167,9 +188,25 @@ end
   print(coins_lost_msg, 40, 65, 8)
  end
 
+if dificultad < 1.5 then
+  print("level 1", 48, 2, 9)
+elseif dificultad < 2 then
+  print("level 2", 48, 2, 9)
+else
+  print("level 3", 48, 2, 9)
+end
+
+
+ print(dificultad, 0, 36, 7)  -- ver dificultad en pantalla
+ print(spawn_timer, 0, 40, 7)  -- ver dificultad en pantalla
+  print(next_wave_interval, 0, 60, 7)  -- ver dificultad en pantalla
+
 -- Mostrar mensaje de power
 if power_msg_timer > 0 then
-  print(power_msg, 25, 75, 10)
+  print(power_msg, 24, 60, 9)
 end
 end
+
+
+
 

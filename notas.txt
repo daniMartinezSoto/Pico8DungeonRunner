@@ -2,8 +2,13 @@ revisar los movimientos de los enemigos
 revisar los daños de los enemigos
 Revisar los enemigos POR DIFICULTAD
 
-crear sistema de dificultad, la cantidad de enemigos va subiendo con el tiempo por checkpoints.
+IF DIFICULTAD ES 1.5, 2.0 >>
+que suene un sonido, cambiar rótulo de nivel, y cambiar las oleadas.
 
+Inidicar el poder que tiene con un simbolo
+
+
+MIRAR QUE UN ESQUELETO UNA VEZ SALIÓ A UN LADO PEGADO Y SE QUEDÓ COMO ATRAPADO EN LA PARED 
 
 Eleccion de personajes?
 
@@ -19,41 +24,4 @@ SPRITES ANIMADOS- ANIMACIONES DE MOVIMIENTO
 cuantos puntos da una moneda? una pocion? cuanto te quita el thief?
 
 
-LISTA enemigos
-
 SISTEMA DE dificultad -->> AUMENTAR EL SPAWN TIME?
-
---------------------MONSTRUOS--------------------------- 
-
-AÑADIR SONIDO A CADA MONSTRUO??? -REVISAR EL SONIDO AL FINAL.
-
-SLIME OK, daño aleatorio, movimiento zigzag (mejorable)
-
-Esqueleto OK, movimiento diagonal, rebota en paredes, hitbox reducida para que sea mas justo
-hace sonidito al rebotar
-
-THIEF OK, te roba monedas, te informa de cuantas te ha robado, temblor pantalla
-
-GHOST OK, movimiento circular
-
-ORCO, La primera vez te avisa de como funciona, va lento, carga muy rapido en linea recta al verte
-
-Gnomo, va lento y disparando en abanico
-
-Beholder, se mueve en escalera disparando en linea recta, OJJOOOO ALINEAR MEJOR. ES MUY DIFICIL EVITARLO
-
-
-
-Aumentar dificultad: variable global dificultad
-(empieza en 1.0, sube a 1.3, 1.6...) multiplicada por speed al crear enemigo
-
-function crear_enemigo(tipo, x, y)
- local info = enemy_types[tipo]
- 
- return {
-  tipo = tipo,
-  x = x,
-  y = y,
-  sprite = info.sprite,
-  speed = info.speed * dificultad,  -- ← APLICAR AQUÍ
-  -- resto...

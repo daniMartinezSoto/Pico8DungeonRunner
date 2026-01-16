@@ -17,14 +17,21 @@ end
 
 -- GAME OVER (pantalla final)
 if game_over then
-  if btnp(❎) then
+  if btnp(❎) then  -- X → reiniciar partida (ir a puerta)
     sfx(22)
     _init()
+    game_state = "intro"  -- va directo a la puerta
     game_over = false
   end
+  
+  if btnp(🅾️) then  -- Z → volver al menú
+    _init()
+    game_state = "menu"  -- va al menú
+    game_over = false
+  end
+  
   return
 end
-
 -- Animación de muerte
 if player_muerto then
   player.x += player.vx
@@ -40,8 +47,30 @@ if player_muerto then
   return
 end
 
+-- ========== MENÚ ==========
+if game_state == "menu" then
+  if not menu_sound_played then
+    sfx(10)
+    menu_sound_played = true
+  end
+  if btnp(❎) or btnp(🅾️) then
+      sfx(-1)
+    game_state = "intro"
+    sfx(27)
+    -- ELEGIR SPRITE ALEATORIO
+    local sprites = {2, 4, 5}
+    local sprite_random = sprites[flr(rnd(3)) + 1]
+    
+    -- CREAR JUGADOR CON SPRITE ALEATORIO
+    player = crear_personaje("personaje", 56, 128, sprite_random, 4, "fullHeal")
+  end
+  return
+end
+
+
 -- ========== INTRO ==========
 if game_state == "intro" then
+
   -- Reducir shake en intro
   if shake_timer > 0 then
     shake_timer -= 1
@@ -104,29 +133,117 @@ if game_state == "entrando" then
     camera_y = 0
     puerta_rota = nil
     
- -- Tipos básicos
--- add(enemies, crear_enemigo("skeleton", 50, -10))
--- add(enemies, crear_enemigo("slime", 30, -15))
--- add(enemies, crear_enemigo("ghost", 70, -20))
--- add(enemies, crear_enemigo("eye", 40, -10))
-
--- Tipos especiales (2x2 sprites)
-add(enemies, crear_enemigo("orc", 60, -20))
--- add(enemies, crear_enemigo("beholder", 80, -20))
-
--- Tipos con habilidades
--- add(enemies, crear_enemigo("thief", 45, -10))
--- add(enemies, crear_enemigo("gnomo", 55, -10))
-    -- CREAR POCIONES INICIALES
-    add(potions_mana, crear_pocion_mana(70, -25))
-    add(potions_mana, crear_pocion_mana(70, -25))
-    add(potions_mana, crear_pocion_mana(70, -25))
-    add(potions_mana, crear_pocion_mana(70, -25))
+  -- GENERAR PRIMERA OLEADA INMEDIATA
+ generar_oleada()
+  wave_timer = 0
+--IMPORTANTE GENERAR AQUI UNA PRIMERA OLEADA AL ENTRAR
+--------------------------------------------------
   end
   return
 end
 
--- ========== JUEGO NORMAL ==========
+-- ========== JUEGO NORMAL ========== ← MOVER AQUÍ
+-- Incrementar contadores de spawn ← AÑADIR AQUÍ
+spawn_timer += 1
+wave_timer += 1
+
+-- Calcular dificultad según score
+dificultad = 1.0 + (score / 300)
+
+-- Verificar cooldown de eventos
+if evento_cooldown > 0 then
+  evento_cooldown -= 1
+  return  -- NO generar oleadas durante cooldown
+end
+
+-- Verificar cooldown de eventos
+if evento_cooldown > 0 then
+  evento_cooldown -= 1
+  return
+end
+
+
+-- GENERAR OLEADAS CON PATRONES (velocidad según dificultad)
+if dificultad >= 2.0 then
+  next_wave_interval = 110   -- nivel 3: más rápido
+elseif dificultad >= 1.5 then
+  next_wave_interval = 120  -- nivel 2: medio
+else
+  next_wave_interval = 140  -- nivel 1: normal
+end
+
+if wave_timer >= next_wave_interval then
+  generar_oleada()
+  wave_timer = 0
+end
+if wave_timer >= next_wave_interval then
+  generar_oleada()
+  wave_timer = 0
+end
+
+-- Reducir shake
+if shake_timer > 0 then
+  shake_timer -= 1
+end
+
+-- Calcular dificultad según score
+dificultad = 1.0 + (score / 300)
+
+-- EVENTO NIVEL 2 (dificultad >= 1.5)
+if dificultad >= 1.5 and not nivel_2_mostrado then
+  nivel_2_mostrado = true
+  
+  -- LIMPIAR PANTALLA
+  for e in all(enemies) do
+    del(enemies, e)
+  end
+  
+  -- SPAWNAR BEHOLDER
+  add(enemies, crear_enemigo("beholder", 60, -20))
+  
+  -- CAMBIAR MÚSICA
+  music(-1)  -- detener música actual
+  music(2)   -- nueva música nivel 2
+  
+  -- MENSAJE
+  power_msg = "level 2!"
+  power_msg_timer = 90
+  sfx(24)
+  
+  -- PAUSAR OLEADAS 3 SEG
+
+  wave_timer = 0
+end
+
+
+-- EVENTO NIVEL 3 (dificultad >= 2.0)
+if dificultad >= 2.0 and not nivel_3_mostrado then
+  nivel_3_mostrado = true
+  
+  -- LIMPIAR PANTALLA
+  for e in all(enemies) do
+    del(enemies, e)
+  end
+   add(potions, crear_pocion(12,-10))
+    add(potions, crear_pocion(50,0))
+
+  -- SPAWNAR 2 GNOMOS
+  add(enemies, crear_enemigo("gnomo", 40, -10))
+  add(enemies, crear_enemigo("gnomo", 80, -10))
+  
+  -- CAMBIAR MÚSICA
+  music(-1)
+  music(20)
+  
+  -- MENSAJE
+  power_msg = "level 3!"
+  power_msg_timer = 90
+  sfx(24)
+  
+  -- SIN PAUSA (no poner evento_cooldown)
+end
+
+
 
 -- Reducir shake
 if shake_timer > 0 then
@@ -156,7 +273,19 @@ end
 
 -- Detectar cuando power llega a 100
 if power >= 100 and not power_ready_shown then
-  power_msg = "your power is ready!"
+  -- ELEGIR PODER ALEATORIO
+  local poderes = {"coinPower", "clearScreen", "fullHeal"}
+  player.power = poderes[flr(rnd(3)) + 1]
+  
+  -- MOSTRAR MENSAJE SEGÚN PODER
+  if player.power == "coinPower" then
+    power_msg = "you got treasure spell!"
+  elseif player.power == "clearScreen" then
+    power_msg = "you got clear spell!"
+  elseif player.power == "fullHeal" then
+    power_msg = "you got healing spell!"
+  end
+  
   power_msg_timer = 90
   power_ready_shown = true
   sfx(24)
@@ -172,37 +301,49 @@ if btnp(❎) then
   if power < 100 then
     power_msg = "not enough power!"
     power_msg_timer = 60
-    sfx(6)
+    sfx(26)
   else
 
-if player.power == "coinPower" then
+    if player.power == "coinPower" then
+   
+      power = 0
+      power_ready_shown = false
+      sfx(25)
+      
+      -- GENERAR LLUVIA DE MONEDAS
+      for i = 1, 15 do
+        add(coins, crear_moneda(random_x(), -10 - rnd(40)))
+      end
+      
+      shake_timer = 10
+      shake_amount = 1
 
-    power_msg = "COINPOWER!"
-    power_msg_timer = 60
-    power = 0
-    power_ready_shown = false
-    sfx(23)
-    shake_timer = 30
-    shake_amount = 2
+    elseif player.power == "clearScreen" then
+ 
+      power = 0
+      power_ready_shown = false
+      sfx(21)
+      
+      -- ELIMINAR TODOS LOS ENEMIGOS
+      for e in all(enemies) do
+        del(enemies, e)
+      end
+      
+      shake_timer = 30
+      shake_amount = 2
+      
+elseif player.power == "fullHeal" then
 
-elseif player.power == "clearScreen" then
-    power_msg = "CLEARSCREEN!"
-    power_msg_timer = 60
-    power = 0
-    power_ready_shown = false
-    sfx(23)
-    shake_timer = 30
-    shake_amount = 2
-elseif player.power == "shield" then
-    power_msg = "SHIELD!"
-    power_msg_timer = 60
-    power = 0
-    power_ready_shown = false
-    sfx(23)
-    shake_timer = 30
-    shake_amount = 2
-end
-
+  power = 0
+  power_ready_shown = false
+  sfx(23)  -- sonido de poción
+  
+  -- CURAR VIDA COMPLETA
+  life = 100
+  
+  shake_timer = 5
+  shake_amount = 0.5
+    end
 
   end
 end

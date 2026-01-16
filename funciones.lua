@@ -1,5 +1,8 @@
 
-
+--FUNCION RANDOM X (posición aleatoria entre muros)
+function random_x()
+  return flr(rnd(104)) + 10
+end
 
 function crear_enemigo(tipo, x, y)
  local info = enemy_types[tipo]
@@ -11,8 +14,8 @@ function crear_enemigo(tipo, x, y)
   sprite = info.sprite,
   sprite_w = info.sprite_w,  
   sprite_h = info.sprite_h,  
-  damage = info.damage*dificultad,
-  speed = info.speed * dificultad,
+  damage = info.damage + dificultad,
+  speed = info.speed,
   direccion_x = info.direccion_x or 1,
   movimiento = info.movimiento or "normal",
   width = info.width,
@@ -188,7 +191,7 @@ end
     if colision(player, self) then
       -- SI ES LADRÓN, roba puntos
 if self.tipo == "thief" then
-  local coins_stolen = flr(rnd(10)) + 1
+  local coins_stolen = flr(rnd(25)) + 1
   score -= coins_stolen
   if score < 0 then score = 0 end
 
@@ -210,6 +213,7 @@ shake_amount = 0.1  -- intensidad del temblor
         
         -- ENEMIGOS NORMALES quitan vida y shake
         life -= self.damage
+        power+=2
         shake_timer = 1  -- dura 10 frames
         shake_amount = 0.1  -- intensidad del temblor
         sfx(5)
@@ -269,7 +273,7 @@ function crear_moneda(x, y)
   recogida=false,
   
   update=function(self)
-     self.y += 3  -- ← AÑADIR (caen hacia abajo)
+     self.y += 2  -- ← AÑADIR (caen hacia abajo)
 
    -- Detectar colisión con el jugador
    if not self.recogida and colision(player, self) then
@@ -330,7 +334,7 @@ function crear_pocion(x, y)
     self.recogida=true
     sfx(3)
     if life < 100 then
-     life = min(100, life + 5)
+     life = min(100, life + 25)
     end
     score += 2
    end
@@ -355,7 +359,7 @@ function crear_pocion_mana(x, y)
   recogida=false,
   
   update=function(self)
-   self.y += 1  -- cae hacia abajo
+   self.y += 2  -- cae hacia abajo
    
    if not self.recogida and colision(player, self) then
     self.recogida=true
@@ -363,7 +367,7 @@ function crear_pocion_mana(x, y)
     
     -- Aumenta power (máximo 100)
     if power < 100 then
-     power = min(100, power + 25)  -- +20 de mana
+     power = min(100, power + 25)  -- +25 de mana
     end
     
     score += 3  -- puntos por recogerla
@@ -390,20 +394,24 @@ function crear_personaje(character, x, y, sprite, speed, power)
   height=8,
   power=power,
   
-  update=function(self)
-   if btn(➡️) then self.x+=self.speed end
-   if btn(⬅️) then self.x-=self.speed end
-  --  if btn(⬆️) then self.y-=self.speed end
-  --  if btn(⬇️) then self.y+=self.speed end
+update=function(self)
+  if btn(➡️) then 
+    self.x += self.speed
+    self.flip = false  -- mirando derecha
+  end
+  
+  if btn(⬅️) then 
+    self.x -= self.speed
+    self.flip = true   -- mirando izquierda (espejado)
+  end
 
   self.x = mid(10, self.x, 111)
-  
-  end,
+end,
 
   
   
   draw=function(self)
-   spr(self.sprite, self.x, self.y)
+  spr(self.sprite, self.x, self.y, 1, 1, self.flip)
     
   end
  }
@@ -413,8 +421,8 @@ end
 function crear_bala(x, y, velocidad, tipo, direccion)  -- <-- añadir direccion aquí
  -- Tipos de bala con sus propiedades
  local bala_tipos = {
-  normal = {sprite = 3, damage = 30*dificultad, width = 3, height = 4},
-  prueba = {sprite = 26, damage = 10*dificultad, width = 5, height = 6}
+  normal = {sprite = 3, damage = 20+dificultad, width = 3, height = 4},
+  prueba = {sprite = 26, damage = 5+dificultad, width = 5, height = 6}
  }
  
  local info = bala_tipos[tipo] or bala_tipos.normal
@@ -463,3 +471,106 @@ function crear_bala(x, y, velocidad, tipo, direccion)  -- <-- añadir direccion 
   end
  }
 end
+
+
+function elegir_patron_oleada()
+  -- FILTRAR patrones disponibles según dificultad
+  local patrones_disponibles = {}
+  local total = 0
+  
+  for patron in all(wave_patterns) do
+    if patron.nivel_min <= dificultad then
+      add(patrones_disponibles, patron)
+      total += patron.peso
+    end
+  end
+  
+  -- Elegir random entre los disponibles
+  local random = rnd(total)
+  local acumulado = 0
+  
+  for patron in all(patrones_disponibles) do
+    acumulado += patron.peso
+    if random < acumulado then
+      return patron
+    end
+  end
+  
+  return patrones_disponibles[1]
+end
+
+
+--FUNCION GENERAR OLEADA CON PATRON
+function generar_oleada()
+  local patron = elegir_patron_oleada()
+  
+  -- GENERAR ENEMIGOS del patrón
+  for enemigo in all(patron.enemigos) do
+    local x = random_x()
+    local y = -10
+    
+    -- Enemigos 2x2 más arriba
+    if enemigo.tipo == "beholder" or enemigo.tipo == "orc" then
+      y = -20
+    end
+    
+    add(enemies, crear_enemigo(enemigo.tipo, x, y))
+  end
+  
+  -- GENERAR MONEDAS
+  if patron.monedas then
+    for i = 1, patron.monedas do
+      add(coins, crear_moneda(random_x(), -10 - rnd(20)))
+    end
+  end
+  
+-- GENERAR POCIÓN VIDA
+if patron.pocion_vida then
+  if patron.pocion_vida == true then
+    -- Si es true, generar 1 poción (50% probabilidad)
+    if rnd(1) < 0.5 and life < 80 then
+      add(potions, crear_pocion(random_x(), -10))
+    end
+  else
+    -- Si es número, generar esa cantidad
+    for i = 1, patron.pocion_vida do
+      add(potions, crear_pocion(random_x(), -10 - rnd(20)))
+    end
+  end
+end
+  -- GENERAR POCIÓN MANA
+if patron.pocion_mana then
+  if patron.pocion_mana == true then
+    -- Si es true, generar 1 poción (50% probabilidad)
+    if rnd(1) < 0.5 and power < 80 then
+      add(potions_mana, crear_pocion_mana(random_x(), -10))
+    end
+  else
+    -- Si es número, generar esa cantidad
+    for i = 1, patron.pocion_mana do
+      add(potions_mana, crear_pocion_mana(random_x(), -10 - rnd(20)))
+    end
+  end
+end
+end
+
+
+--FUNCION CONTAR ENEMIGOS DE UN TIPO
+function contar_enemigos_tipo(tipo)
+  local count = 0
+  for e in all(enemies) do
+    if e.tipo == tipo then
+      count += 1
+    end
+  end
+  return count
+end
+
+--FUNCION LIMPIAR TODOS LOS ENEMIGOS
+function limpiar_enemigos_actuales()
+  for e in all(enemies) do
+    del(enemies, e)
+  end
+end
+
+

@@ -1,10 +1,6 @@
 function _init()
 
- -- AQUI SE DEBERA DECIR QUE PERSONAJE ELIGE EL JUGADOR
- -- Y SE CREA EL PERSONAJE ELEGIDO DANDOLE NOMBRE PLAYER
- -- player = crear_personaje("mage", 63, 100, 2, 3)
- -- player = crear_personaje("warrior", 63, 100, 4, 2)
- player = crear_personaje("elf", 56, 128, 5, 4, "clearScreen")
+player = crear_personaje("personaje", 56, 128, 4, 4, "coinPower")
 
 coins = {}
 potions = {}
@@ -16,19 +12,21 @@ balas = {}
 
  -- RESETEAR VIDA Y POWER
 
- power = 0   
- score = 0   
+ power = 100   
+ score = 0
 paso_timer = 0
 player_muerto = false
 muerte_timer = 0
 game_over = false
 life = 100
 
-
-spawn_timer = 0
+--VARIABLES SISTEMA DE SPAWN
+ spawn_timer = 0
+ wave_timer = 0
+ evento_cooldown = 0
 
 --INTRO
- game_state = "intro"
+ game_state = "menu"
  golpes_puerta = 0
  camera_y = 0
 
@@ -39,5 +37,5 @@ power_msg_timer = 0
 power_ready_shown = false
  
  
-
+menu_sound_played = false
 end
